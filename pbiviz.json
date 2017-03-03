@@ -1,0 +1,24 @@
+{
+  "visual": {
+    "name": "alRTest",
+    "displayName": "AlRTest",
+    "guid": "PBI_CV_5503E017_0853_4327_9C12_DEE73CE835B7",
+    "visualClassName": "Visual",
+    "version": "1.0.0",
+    "description": "",
+    "supportUrl": "",
+    "gitHubUrl": ""
+  },
+  "apiVersion": "1.4.0",
+  "author": {
+    "name": "Alaeddin",
+    "email": "alaeddin14@windowslive.com"
+  },
+  "assets": {
+    "icon": "assets/icon.png"
+  },
+  "externalJS": [],
+  "style": "style/visual.less",
+  "capabilities": "capabilities.json",
+  "dependencies": "dependencies.json"
+}
