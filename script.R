@@ -37,41 +37,105 @@ if (exists("settings_statistics_test"))
 
 #Outcome: 
 
-if (method = NULL) {
+if (is.null(method)) {
     outcome <- "Please select the statiscical test" #"Please select at least 2 variables"
-} else if (method = t_test) {
-    if (!exists("dataset") | dim(dataset)[,2]<2) {
+    Warning_msg <- ""
+} else if (method == "t_test") {
+    if (!exists("dataset") | dim(dataset)[2] < 2) {
         outcome = "Please select 2 variables"
     } else {
-        stat_test <- t.test(dataset)
+        summary_t_test <- summary(dataset[, 1:2])
+        stat_test <- t.test(dataset[, 1:2])
         options(digits = 2)
         T <- data.frame(format(round(stat_test$statistic, 2), nsmall = 2), row.names = NULL)
         P <- data.frame(format(round(stat_test$p.value, 5), nsmall = 5), row.names = NULL)
-        Comment <- ifelse(stat_test$p.value >= 0.05, "The variables are not significantly different", "The variables are significantly different")
+        Comment <- ifelse(stat_test$p.value >= 0.05, "The averages of the 2 variables are significantly similar", "The averages of the 2 variables are significantly different")
         outcome <- data.frame(cbind(T, P, Comment))
         rownames(outcome) <- " "
         colnames(outcome) <- c("t-test value", "p-value", "Comment")
-    }
+        Warning_msg <- if (dim(dataset)[2] > 2) {
+            paste("Only the following 2 variables were used: ", colnames(dataset[1]), "and", colnames(dataset[2]), sep = " ")
+        } else { "" }
+        }
 
-} else if (method = chi_square) {
-    if (!exists("dataset") | dim(dataset)[, 2] < 2) {
+} else if (method == chi_square) {
+    if (!exists("dataset") | dim(dataset)[2] < 2) {
         outcome = "Please select 2 variables"
     } else {
         chi_table <- table(factor(datasets[, 1]), factor(datasets[, 2]))
         chi_test <- chisq.test(chi_table)
+        options(digits = 2)
         chi_score <- chi_test$statistic
         chi_pv <- chi_test$p.value
         Comment <- ""
         outcome <- data.frame(cbind(chi_score, chi_pv, Comment))
         colnames(outcome) <- c("Chi-Square value", "p-value", "Comment")
-    }
+        Warning_msg <- if (dim(dataset)[2] > 2) {
+            paste("Only the following 2 variables were used: ", colnames(dataset[1]), "and", colnames(dataset[2]), sep = " ")
+        } else { "" }
+        }
 }
 
 
+#Plots themes
+theme_def <- ttheme_default()
+theme_min <- ttheme_minimal()
+theme_blue <- ttheme_minimal(
+  core = list(bg_params = list(fill = blues9[1:4], col = NA),
+            fg_params = list(fontface = 3)),
+  colhead = list(fg_params = list(col = "navyblue", fontface = 4L)),
+  rowhead = list(fg_params = list(col = "orange", fontface = 3L)))
+
+n_rows <- if (Warning_msg == "") { 2 } else { 3 }
 
 
 
-par(mfrow = c(2, 1))
+#Plots
+
+if (is.null(method)) {
+    n_rows <- 1
+    grid.arrange(
+  tableGrob(outcome, theme = theme_blue),
+  nrow = n_rows)
+} else if (method == "t_test") {
+    grid.arrange(
+    tableGrob(summary_t_test, theme = theme_blue,cols = colnames(dataset[,1:2])),
+    tableGrob(outcome, theme = theme_def),
+    tableGrob(Warning_msg, theme = theme_min),
+  nrow = n_rows)
+} else { NULL }
+
+
+
+
+grid.arrange(
+  tableGrob(outcome, theme = theme_blue),
+  tableGrob(outcome_chi, theme = theme_def),
+  nrow = n_rows)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+par(mfrow = c(3, 1))
 plot.new()
 vps <- baseViewports()
 pushViewport(vps$figure)
@@ -86,9 +150,28 @@ vp1 <- plotViewport()
 grid.table(outcome_chi)
 popViewport()
 
+plot.new()
+vps <- baseViewports()
+pushViewport(vps$figure)
+vp1 <- plotViewport()
+grid.table(outcome_chi)
+popViewport()
 
 
+## Formatting reference 
+tt1 <- ttheme_default()
+tt2 <- ttheme_minimal()
+tt3 <- ttheme_minimal(
+  core = list(bg_params = list(fill = blues9[1:4], col = NA),
+            fg_params = list(fontface = 3)),
+  colhead = list(fg_params = list(col = "navyblue", fontface = 4L)),
+  rowhead = list(fg_params = list(col = "orange", fontface = 3L)))
 
+grid.arrange(
+  tableGrob(iris[1:4, 1:2], theme = tt1),
+  tableGrob(iris[1:4, 1:2], theme = tt2),
+  tableGrob(iris[1:4, 1:2], theme = tt3),
+  nrow = 1)
 
 
 
@@ -142,6 +225,20 @@ colnames(outcome) <- c("t-test value", "p-value", "Comment")
 grid.table(b)
 
 
+tt2 <- ttheme_minimal()
+tt3 <- ttheme_minimal(
+  core = list(bg_params = list(fill = blues9[1:4], col = NA),
+            fg_params = list(fontface = 3)),
+  colhead = list(fg_params = list(col = "navyblue", fontface = 4L)),
+  rowhead = list(fg_params = list(col = "orange", fontface = 3L)))
+
+grid.arrange(
+  tableGrob(tbl, theme = tt3),
+  tableGrob(outcome_chi, theme = tt2),
+  nrow = 2)
+
+
+
 
 
 par(mfrow = c(2, 1))
@@ -158,6 +255,21 @@ pushViewport(vps$figure)
 vp1 <- plotViewport()
 grid.table(outcome_chi)
 popViewport()
+
+
+
+
+aaa <- iris[1:3]
+colnames(aaa[3])
+
+
+if (dim(aaa)[2] > 2) { paste("Only the following 2 variables were used: ", colnames(aaa[1]), colnames(aaa[2]), sep = " ") } else { NULL }
+
+
+
+
+
+
 
 
 
