@@ -34,6 +34,9 @@ method = NULL
 if (exists("settings_statistics_test"))
     method = settings_statistics_test
 
+#Testing:
+dataset <- iris[, 1:3]
+method <- "t_test"
 
 #Outcome: 
 
@@ -44,7 +47,8 @@ if (is.null(method)) {
     if (!exists("dataset") | dim(dataset)[2] < 2) {
         outcome = "Please select 2 variables"
     } else {
-        summary_t_test <- summary(dataset[, 1:2])
+        summary_t_test1 <- summary(dataset[, 1:2])
+        summary_t_test <- rbind(colnames(summary_t_test), summary_t_test)
         stat_test <- t.test(dataset[, 1:2])
         options(digits = 2)
         T <- data.frame(format(round(stat_test$statistic, 2), nsmall = 2), row.names = NULL)
@@ -81,7 +85,7 @@ if (is.null(method)) {
 theme_def <- ttheme_default()
 theme_min <- ttheme_minimal()
 theme_blue <- ttheme_minimal(
-  core = list(bg_params = list(fill = blues9[1:4], col = NA),
+  core = list(bg_params = list(fill = blues9[c(6,2,2,2,2,2,2,2,2)], col = NA),
             fg_params = list(fontface = 3)),
   colhead = list(fg_params = list(col = "navyblue", fontface = 4L)),
   rowhead = list(fg_params = list(col = "orange", fontface = 3L)))
@@ -99,10 +103,12 @@ if (is.null(method)) {
   nrow = n_rows)
 } else if (method == "t_test") {
     grid.arrange(
-    tableGrob(summary_t_test, theme = theme_blue,cols = colnames(dataset[,1:2])),
+    tableGrob(summary_t_test, theme = theme_blue, cols = colnames(dataset[, 1:2])),
     tableGrob(outcome, theme = theme_def),
     tableGrob(Warning_msg, theme = theme_min),
-  nrow = n_rows)
+    nrow = n_rows,
+    ncol = 1
+    )
 } else { NULL }
 
 
