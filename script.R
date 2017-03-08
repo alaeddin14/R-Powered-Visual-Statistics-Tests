@@ -8,14 +8,14 @@ libraryRequireInstall = function(packageName, ...) {
 libraryRequireInstall("gridExtra")
 libraryRequireInstall("grid")
 #libraryRequireInstall("MASS")
-libraryRequireInstall("ggplot2")
+##libraryRequireInstall("ggplot2")
 libraryRequireInstall("gridBase")
 #libraryRequireInstall("gridExtra")
 
 
-
-t_dataset <- as.data.frame(iris[, 1:3])
-chi_dataset <- as.data.frame(survey[, c("Smoke", "Exer", "Sex")])
+options(warn = -1)
+#t_dataset <- as.data.frame(iris[, 1:3])
+#chi_dataset <- as.data.frame(survey[, c("Smoke", "Exer", "Sex")])
 
 if (!exists("dataset") && exists("Values"))
     dataset = Values
@@ -27,13 +27,13 @@ if (exists("settings_labels_params_tl_col"))
 
 
 
-method = NULL
+method = "t_test"
 if (exists("settings_stats_tests_params_statistics_test"))
-    method = settings_statistics_test
+    method = settings_stats_tests_params_statistics_test
 
 Confidence = "95%"
 if (exists("settings_stats_tests_params_Confidence_Level"))
-    Confidence = settings_statistics_test
+    Confidence = settings_stats_tests_params_Confidence_Level
 
 if (Confidence == "95%") {
     significance_level <- 0.05
@@ -49,8 +49,8 @@ if (Confidence == "95%") {
 
 
 #Testing:
-dataset <- t_dataset #t_dataset  #chi_dataset
-method <- "t_test" #"t_test"  #"chi_square"
+#dataset <- chi_dataset #t_dataset  #chi_dataset
+#method <- "chi_square" #"t_test"  #"chi_square"
 
 #Outcome: 
 

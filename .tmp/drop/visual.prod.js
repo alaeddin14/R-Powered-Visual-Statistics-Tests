@@ -174,9 +174,21 @@ var powerbi;
         (function (visual) {
             var PBI_CV_5503E017_0853_4327_9C12_DEE73CE835B7;
             (function (PBI_CV_5503E017_0853_4327_9C12_DEE73CE835B7) {
+                /*    interface VisualSettingsCoeffParams {
+                        show: boolean;
+                        addCoef_col: string;
+                        number_digits: string;
+                         textSize: number;
+                
+                    }
+                    interface VisualSettingsAdditionalParams {
+                        show: boolean;
+                        showWarnings: boolean;
+                    }*/
                 var Visual = (function () {
-                    // Snippet for defining the member property which will hold the property pane values
-                    /*private settings: VisualSettings;*/
+                    /*        private settings_coeff_params: VisualSettingsCoeffParams;
+                            private settings_additional_params: VisualSettingsAdditionalParams;
+                    */
                     function Visual(options) {
                         this.imageDiv = document.createElement('div');
                         this.imageDiv.className = 'rcv_autoScaleImageContainer';
@@ -184,11 +196,26 @@ var powerbi;
                         this.imageElement = document.createElement('img');
                         this.imageElement.className = 'rcv_autoScaleImage';
                         this.imageDiv.appendChild(this.imageElement);
+                        this.settings_stats_tests_params = {
+                            show: false,
+                            statistics_test: "t_test",
+                            Confidence_Level: "95%",
+                        };
                         this.settings_labels_params = {
                             show: false,
-                            textSize: 10,
+                            /*                textSize: 10, */
                             tl_col: "red",
                         };
+                        /*          this.settings_coeff_params = <VisualSettingsCoeffParams>{
+                                        show: false,
+                                        addCoef_col: "black",
+                                        number_digits: "1",
+                                        textSize: 8
+                                    };
+                                    this.settings_additional_params = <VisualSettingsAdditionalParams>{
+                                        show: false,
+                                        showWarnings: false,
+                                    }; */
                     }
                     Visual.prototype.update = function (options) {
                         var dataViews = options.dataViews;
@@ -197,12 +224,28 @@ var powerbi;
                         var dataView = dataViews[0];
                         if (!dataView || !dataView.metadata)
                             return;
-                        this.updateObjects(dataView.metadata.objects);
+                        this.settings_stats_tests_params = {
+                            show: PBI_CV_5503E017_0853_4327_9C12_DEE73CE835B7.getValue(dataView.metadata.objects, 'settings_stats_tests_params', 'show', false),
+                            statistics_test: PBI_CV_5503E017_0853_4327_9C12_DEE73CE835B7.getValue(dataView.metadata.objects, 'settings_stats_tests_params', 'statistics_test', "t_test"),
+                            Confidence_Level: PBI_CV_5503E017_0853_4327_9C12_DEE73CE835B7.getValue(dataView.metadata.objects, 'settings_stats_tests_params', 'Confidence_Level', "95%"),
+                        };
                         this.settings_labels_params = {
                             show: PBI_CV_5503E017_0853_4327_9C12_DEE73CE835B7.getValue(dataView.metadata.objects, 'settings_labels_params', 'show', false),
-                            textSize: PBI_CV_5503E017_0853_4327_9C12_DEE73CE835B7.getValueMinMax(dataView.metadata.objects, 'settings_labels_params', 'textSize', 10, 5, 50),
+                            /*            textSize: getValueMinMax<number>(dataView.metadata.objects, 'settings_labels_params', 'textSize', 10, 5, 50), */
                             tl_col: PBI_CV_5503E017_0853_4327_9C12_DEE73CE835B7.getValue(dataView.metadata.objects, 'settings_labels_params', 'tl_col', "red"),
                         };
+                        /*          this.settings_coeff_params = <VisualSettingsCoeffParams>{
+                                        show: getValue<boolean>(dataView.metadata.objects, 'settings_coeff_params', 'show', false),
+                                        addCoef_col: getValue<string>(dataView.metadata.objects, 'settings_coeff_params', 'addCoef_col', "black"),
+                                        number_digits: getValue<string>(dataView.metadata.objects, 'settings_coeff_params', 'number_digits', "1"),
+                                        textSize: getValue<number>(dataView.metadata.objects, 'settings_coeff_params', 'textSize', 8)
+                        
+                                    };
+                                    this.settings_additional_params = <VisualSettingsAdditionalParams>{
+                                        show: getValue<boolean>(dataView.metadata.objects, 'settings_additional_params', 'show', false),
+                                        showWarnings: getValue<boolean>(dataView.metadata.objects, 'settings_additional_params', 'showWarnings', false)
+                                    };
+                        */
                         var imageUrl = null;
                         if (dataView.scriptResult && dataView.scriptResult.payloadBase64) {
                             imageUrl = "data:image/png;base64," + dataView.scriptResult.payloadBase64;
@@ -219,36 +262,40 @@ var powerbi;
                         this.imageDiv.style.height = finalViewport.height + 'px';
                         this.imageDiv.style.width = finalViewport.width + 'px';
                     };
-                    /**
-                     * This function gets called by the update function above. You should read the new values of the properties into
-                     * your settings object so you can use the new value in the enumerateObjectInstances function below.
-                     *
-                     * Below is a code snippet demonstrating how to expose a single property called "lineColor" from the object called "settings"
-                     * This object and property should be first defined in the capabilities.json file in the objects section.
-                     * In this code we get the property value from the objects (and have a default value in case the property is undefined)
-                     */
-                    Visual.prototype.updateObjects = function (objects) {
-                        /*this.settings = <VisualSettings>{
-                            lineColor: getFillValue(object, 'settings', 'lineColor', "#333333")
-                        };*/
-                    };
-                    /**
-                     * This function gets called for each of the objects defined in the capabilities files and allows you to select which of the
-                     * objects and properties you want to expose to the users in the property pane.
-                     *
-                     * Below is a code snippet for a case where you want to expose a single property called "lineColor" from the object called "settings"
-                     * This object and property should be first defined in the capabilities.json file in the objects section.
-                     */
                     Visual.prototype.enumerateObjectInstances = function (options) {
                         var objectName = options.objectName;
                         var objectEnumeration = [];
                         switch (objectName) {
+                            case 'settings_stats_tests_params':
+                                if (this.settings_stats_tests_params.statistics_test == "t_test") {
+                                    objectEnumeration.push({
+                                        objectName: objectName,
+                                        properties: {
+                                            show: this.settings_stats_tests_params.show,
+                                            statistics_test: this.settings_stats_tests_params.statistics_test,
+                                            /*                              addrect: this.settings_stats_tests_params.addrect, */
+                                            Confidence_Level: this.settings_stats_tests_params.Confidence_Level,
+                                        },
+                                        selector: null
+                                    });
+                                }
+                                else {
+                                    objectEnumeration.push({
+                                        objectName: objectName,
+                                        properties: {
+                                            show: this.settings_stats_tests_params.show,
+                                            statistics_test: this.settings_stats_tests_params.statistics_test,
+                                        },
+                                        selector: null
+                                    });
+                                }
+                                break;
                             case 'settings_labels_params':
                                 objectEnumeration.push({
                                     objectName: objectName,
                                     properties: {
                                         show: this.settings_labels_params.show,
-                                        textSize: this.settings_labels_params.textSize,
+                                        /*                            textSize: this.settings_labels_params.textSize, */
                                         tl_col: this.settings_labels_params.tl_col
                                     },
                                     selector: null
@@ -256,17 +303,6 @@ var powerbi;
                                 break;
                         }
                         ;
-                        /*switch( objectName ){
-                            case 'settings':
-                                objectEnumeration.push({
-                                    objectName: objectName,
-                                    properties: {
-                                        lineColor: this.settings.lineColor,
-                                     },
-                                    selector: null
-                                });
-                                break;
-                        };*/
                         return objectEnumeration;
                     };
                     return Visual;
