@@ -5,17 +5,26 @@ libraryRequireInstall = function(packageName, ...) {
         warning(paste("*** The package: '", packageName, "' was not installed ***", sep = ""))
     }
 
-libraryRequireInstall("gridExtra")
-libraryRequireInstall("grid")
-#libraryRequireInstall("MASS")
-##libraryRequireInstall("ggplot2")
-libraryRequireInstall("gridBase")
 #libraryRequireInstall("gridExtra")
+suppressWarnings(libraryRequireInstall("ggplot2"))
+suppressWarnings(libraryRequireInstall("grid"))
+#libraryRequireInstall("MASS")
+suppressWarnings(libraryRequireInstall("gridExtra"))
+suppressWarnings(libraryRequireInstall("gridBase"))
 
 
-options(warn = -1)
+
+#options(warn = -1)
 #t_dataset <- as.data.frame(iris[, 1:3])
 #chi_dataset <- as.data.frame(survey[, c("Smoke", "Exer", "Sex")])
+
+############ User Parameters #########
+
+if (exists("settings_stats_tests_params_show") && settings_stats_tests_params_show == FALSE)
+    rm(list = ls(pattern = "settings_stats_tests_params_"))
+if (exists("settings_labels_params_show") && settings_labels_params_show == FALSE)
+    rm(list = ls(pattern = "settings_labels_params_"))
+
 
 if (!exists("dataset") && exists("Values"))
     dataset = Values
@@ -27,7 +36,7 @@ if (exists("settings_labels_params_tl_col"))
 
 
 
-method = "t_test"
+method = NULL
 if (exists("settings_stats_tests_params_statistics_test"))
     method = settings_stats_tests_params_statistics_test
 
@@ -45,7 +54,10 @@ if (Confidence == "95%") {
 
 
 
-
+if (!exists("dataset")) {
+    #require("datasets")
+    dataset = as.data.frame(iris[, 1:3]) #mpg,cyl,disp,hp,drat,wt,qsec,vs,am,gear,carb
+}
 
 
 #Testing:
@@ -123,13 +135,13 @@ if (is.null(method)) {
     n_rows <- 1
     grid.arrange(
   tableGrob(outcome, theme = theme_blue),
-  nrow = n_rows)
+  nrow = 3)
 } else if (method == "t_test") {
     grid.arrange(
     tableGrob(summary_t_test, theme = theme_blue, cols = colnames(dataset[, 1:2])),
     tableGrob(outcome, theme = theme_def),
     tableGrob(Warning_msg, theme = theme_min),
-    nrow = n_rows,
+    nrow = 3,
     ncol = 1
     )
 } else if (method == "chi_square") {
