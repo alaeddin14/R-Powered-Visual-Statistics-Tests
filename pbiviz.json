@@ -1,7 +1,7 @@
 {
   "visual": {
-    "name": "alRTest",
-    "displayName": "AlRTest",
+    "name": "Statistics_Tests",
+    "displayName": "Statistics Tests",
     "guid": "PBI_CV_5503E017_0853_4327_9C12_DEE73CE835B7",
     "visualClassName": "Visual",
     "version": "1.0.0",
@@ -11,7 +11,7 @@
   },
   "apiVersion": "1.4.0",
   "author": {
-    "name": "Alaeddin",
+    "name": "Alaeddin Badran",
     "email": "alaeddin14@windowslive.com"
   },
   "assets": {
