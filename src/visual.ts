@@ -24,54 +24,77 @@
  *  THE SOFTWARE.
  */
 module powerbi.extensibility.visual {
-    
-    // Below is a snippet of a definition for an object which will contain the property values
-    // selected by the users
-    /*interface VisualSettings {
-        lineColor: string;
-    }*/
 
-    // To allow this scenario you should first the following JSON definition to the capabilities.json file
-    // under the "objects" property:
-    // "settings": {
-    //     "displayName": "Visual Settings",
-    //     "description": "Visual Settings Tooltip",
-    //     "properties": {
-    //         "lineColor": {
-    //         "displayName": "Line Color",
-    //         "type": { "fill": { "solid": { "color": true }}}
-    //         }
-    //     }
-    // }
+    interface VisualSettingsStatsTestsParams {
+        show: boolean;
+        Confidence_Level: string;
+        statistics_test: string;
+/*      addrect: string;
+        order: string;
+*/
+    }
 
     interface VisualSettingsLabelsParams {
         show: boolean;
-        textSize: number;
+/*        textSize: number; */
         tl_col: string;
     }
+/*    interface VisualSettingsCoeffParams {
+        show: boolean;
+        addCoef_col: string;
+        number_digits: string;
+         textSize: number; 
+
+    }
+    interface VisualSettingsAdditionalParams {
+        show: boolean;
+        showWarnings: boolean;
+    }*/
 
     export class Visual implements IVisual {
         private imageDiv: HTMLDivElement;
         private imageElement: HTMLImageElement;
+
+        private settings_stats_tests_params: VisualSettingsStatsTestsParams;
         private settings_labels_params: VisualSettingsLabelsParams;
-        // Snippet for defining the member property which will hold the property pane values
-        /*private settings: VisualSettings;*/
+/*        private settings_coeff_params: VisualSettingsCoeffParams;
+        private settings_additional_params: VisualSettingsAdditionalParams;
+*/
 
         public constructor(options: VisualConstructorOptions) {
             this.imageDiv = document.createElement('div');
             this.imageDiv.className = 'rcv_autoScaleImageContainer';
             options.element.appendChild(this.imageDiv);
-            
+
             this.imageElement = document.createElement('img');
             this.imageElement.className = 'rcv_autoScaleImage';
 
             this.imageDiv.appendChild(this.imageElement);
 
+            this.settings_stats_tests_params = <VisualSettingsStatsTestsParams>{
+                show: false,
+                statistics_test: "t_test",
+                Confidence_Level: "95%",
+/*              order: "original",
+                addrect: "none",
+*/
+            };
+
             this.settings_labels_params = <VisualSettingsLabelsParams>{
                 show: false,
-                textSize: 10,
+/*                textSize: 10, */
                 tl_col: "red",
             };
+/*          this.settings_coeff_params = <VisualSettingsCoeffParams>{
+                show: false,
+                addCoef_col: "black",
+                number_digits: "1",
+                textSize: 8
+            };
+            this.settings_additional_params = <VisualSettingsAdditionalParams>{
+                show: false,
+                showWarnings: false,
+            }; */
         }
 
         public update(options: VisualUpdateOptions) {
@@ -83,12 +106,35 @@ module powerbi.extensibility.visual {
             if (!dataView || !dataView.metadata)
                 return;
 
-            this.updateObjects(dataView.metadata.objects);
+            this.settings_stats_tests_params = <VisualSettingsStatsTestsParams>{
+                show: getValue<boolean>(dataView.metadata.objects, 'settings_stats_tests_params', 'show', false),
+                statistics_test: getValue<string>(dataView.metadata.objects, 'settings_stats_tests_params', 'statistics_test', "t_test"),
+                Confidence_Level: getValue<string>(dataView.metadata.objects, 'settings_stats_tests_params', 'Confidence_Level', "95%"),
+/*              addrect: getValue<string>(dataView.metadata.objects, 'settings_stats_tests_params', 'addrect', "0"),
+                order: getValue<string>(dataView.metadata.objects, 'settings_stats_tests_params', 'order', "original"),
+*/
+
+
+            };
+
+
             this.settings_labels_params = <VisualSettingsLabelsParams>{
                 show: getValue<boolean>(dataView.metadata.objects, 'settings_labels_params', 'show', false),
-                textSize: getValueMinMax<number>(dataView.metadata.objects, 'settings_labels_params', 'textSize', 10, 5, 50),
+  /*            textSize: getValueMinMax<number>(dataView.metadata.objects, 'settings_labels_params', 'textSize', 10, 5, 50), */
                 tl_col: getValue<string>(dataView.metadata.objects, 'settings_labels_params', 'tl_col', "red"),
             };
+/*          this.settings_coeff_params = <VisualSettingsCoeffParams>{
+                show: getValue<boolean>(dataView.metadata.objects, 'settings_coeff_params', 'show', false),
+                addCoef_col: getValue<string>(dataView.metadata.objects, 'settings_coeff_params', 'addCoef_col', "black"),
+                number_digits: getValue<string>(dataView.metadata.objects, 'settings_coeff_params', 'number_digits', "1"),
+                textSize: getValue<number>(dataView.metadata.objects, 'settings_coeff_params', 'textSize', 8)
+
+            };
+            this.settings_additional_params = <VisualSettingsAdditionalParams>{
+                show: getValue<boolean>(dataView.metadata.objects, 'settings_additional_params', 'show', false),
+                showWarnings: getValue<boolean>(dataView.metadata.objects, 'settings_additional_params', 'showWarnings', false)
+            };
+*/
             let imageUrl: string = null;
             if (dataView.scriptResult && dataView.scriptResult.payloadBase64) {
                 imageUrl = "data:image/png;base64," + dataView.scriptResult.payloadBase64;
@@ -108,55 +154,73 @@ module powerbi.extensibility.visual {
             this.imageDiv.style.width = finalViewport.width + 'px';
         }
 
-        /**
-         * This function gets called by the update function above. You should read the new values of the properties into 
-         * your settings object so you can use the new value in the enumerateObjectInstances function below.
-         * 
-         * Below is a code snippet demonstrating how to expose a single property called "lineColor" from the object called "settings"
-         * This object and property should be first defined in the capabilities.json file in the objects section.
-         * In this code we get the property value from the objects (and have a default value in case the property is undefined)
-         */
-        public updateObjects(objects: DataViewObjects) {
-            /*this.settings = <VisualSettings>{
-                lineColor: getFillValue(object, 'settings', 'lineColor', "#333333")
-            };*/
-        }
-
-        /** 
-         * This function gets called for each of the objects defined in the capabilities files and allows you to select which of the 
-         * objects and properties you want to expose to the users in the property pane.
-         * 
-         * Below is a code snippet for a case where you want to expose a single property called "lineColor" from the object called "settings"
-         * This object and property should be first defined in the capabilities.json file in the objects section.
-         */
         public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstanceEnumeration {
             let objectName = options.objectName;
             let objectEnumeration = [];
 
             switch (objectName) {
+                case 'settings_stats_tests_params':
+                    if (this.settings_stats_tests_params.statistics_test == "t_test") {
+                        objectEnumeration.push({
+                            objectName: objectName,
+                            properties: {
+                                show: this.settings_stats_tests_params.show,
+                                statistics_test: this.settings_stats_tests_params.statistics_test,
+/*                              addrect: this.settings_stats_tests_params.addrect, */
+                                Confidence_Level: this.settings_stats_tests_params.Confidence_Level,
+/*                              order: this.settings_stats_tests_params.order */
+                            },
+                            selector: null
+                        });
+                    }
+                    else {
+                        objectEnumeration.push({
+                            objectName: objectName,
+                            properties: {
+                                show: this.settings_stats_tests_params.show,
+                                statistics_test: this.settings_stats_tests_params.statistics_test,
+/*                                addrect: this.settings_stats_tests_params.addrect, */
+                            },
+                            selector: null
+                        });
+
+                    }
+                    break;
+
                 case 'settings_labels_params':
                     objectEnumeration.push({
                         objectName: objectName,
                         properties: {
                             show: this.settings_labels_params.show,
-                            textSize: this.settings_labels_params.textSize,
+/*                            textSize: this.settings_labels_params.textSize, */
                             tl_col: this.settings_labels_params.tl_col
                         },
                         selector: null
                     });
                     break;
-            };
-            /*switch( objectName ){
-                case 'settings':
+/*                case 'settings_coeff_params':
                     objectEnumeration.push({
                         objectName: objectName,
                         properties: {
-                            lineColor: this.settings.lineColor,
-                         },
+                            show: this.settings_coeff_params.show,
+                            number_digits: this.settings_coeff_params.number_digits,
+                            addCoef_col: this.settings_coeff_params.addCoef_col,
+                            textSize: this.settings_coeff_params.textSize,
+                        },
                         selector: null
                     });
                     break;
-            };*/
+                case 'settings_additional_params':
+                    objectEnumeration.push({
+                        objectName: objectName,
+                        properties: {
+                            show: this.settings_additional_params.show,
+                            showWarnings: this.settings_additional_params.showWarnings,
+                        },
+                        selector: null
+                    });
+                    break; */
+            };
 
             return objectEnumeration;
         }
