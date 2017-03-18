@@ -61,8 +61,8 @@ if (!exists("dataset")) {
 
 
 #Testing:
-#dataset <- chi_dataset #t_dataset  #chi_dataset
-#method <- "chi_square" #"t_test"  #"chi_square"
+#dataset <- t_dataset #t_dataset  #chi_dataset
+#method <- "t_test" #"t_test"  #"chi_square"
 
 #Outcome: 
 
@@ -72,10 +72,17 @@ if (is.null(method)) {
 } else if (method == "t_test") {
     if (!exists("dataset") | dim(dataset)[2] < 2) {
         outcome = "Please select 2 variables"
+    } else if (class(dataset[, 1]) != "numeric" | class(dataset[, 2]) != "numeric") {
+        outcome = "Please select numeric variables"
     } else {
-        summary_t_test1 <- summary(dataset[, 1:2])
-        summary_t_test <- rbind(colnames(summary_t_test1), summary_t_test1)
         stat_test <- t.test(dataset[, 1:2])
+        summary_t_test1 <- summary(dataset[, 1:2])
+        summary_t_test <- if (class(dataset[, 1]) != "numeric" | class(dataset[, 2]) != "numeric") {
+            " "
+        } else {
+            rbind(colnames(summary_t_test1), summary_t_test1)
+        }
+
         options(digits = 3)
         T <- data.frame(format(round(stat_test$statistic, 2), nsmall = 2), row.names = NULL)
         P <- data.frame(format(round(stat_test$p.value, 5), nsmall = 5), row.names = NULL)
@@ -116,7 +123,7 @@ if (is.null(method)) {
 theme_def <- ttheme_default()
 theme_min <- ttheme_minimal()
 theme_blue <- ttheme_minimal(
-  core = list(bg_params = list(fill = blues9[c(6,2,2,2,2,2,2,2,2)], col = NA),
+  core = list(bg_params = list(fill = blues9[c(6, 2, 2, 2, 2, 2, 2, 2, 2)], col = NA),
             fg_params = list(fontface = 3)),
   colhead = list(fg_params = list(col = tl.col, fontface = 4L)),
   rowhead = list(fg_params = list(col = tl.col, fontface = 3L)))
@@ -125,7 +132,7 @@ theme_blue2 <- ttheme_minimal(
             fg_params = list(fontface = 3)),
   colhead = list(fg_params = list(col = tl.col, fontface = 4L)),
   rowhead = list(fg_params = list(col = tl.col, fontface = 3L)))
-n_rows <- if (Warning_msg == "") { 2 } else { 3 }
+n_rows <- if (Warning_msg == " ") { 2 } else { 3 }
 
 
 
@@ -137,21 +144,29 @@ if (is.null(method)) {
   tableGrob(outcome, theme = theme_blue),
   nrow = 3)
 } else if (method == "t_test") {
-    grid.arrange(
-    tableGrob(summary_t_test, theme = theme_blue, cols = colnames(dataset[, 1:2])),
-    tableGrob(outcome, theme = theme_def),
-    tableGrob(Warning_msg, theme = theme_min),
-    nrow = 3,
-    ncol = 1
-    )
+    if (!exists("summary_t_test")) {
+        grid.arrange(
+        tableGrob(outcome, theme = theme_def),
+        tableGrob(Warning_msg, theme = theme_min),
+        nrow = 2,
+        ncol = 1
+        )
+    } else {
+        grid.arrange(
+        tableGrob(summary_t_test, theme = theme_blue, cols = colnames(dataset[, 1:2])),
+        tableGrob(outcome, theme = theme_def),
+        tableGrob(Warning_msg, theme = theme_min),
+        nrow = 3,
+        ncol = 1
+        )
+    }
+
 } else if (method == "chi_square") {
     grid.arrange(
         tableGrob(chi_table, theme = theme_blue2),
         tableGrob(outcome, theme = theme_def),
-        tableGrob(Warning_msg,theme=theme_min),
+        tableGrob(Warning_msg, theme = theme_min),
     nrow = 3,
     ncol = 1
         )
 }
-
-
